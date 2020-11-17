@@ -1,20 +1,25 @@
 import os
-import keras.backend as K
-from keras.layers import Dense, Flatten, Input, LSTM, CuDNNLSTM, Reshape, Dropout, Add, Permute
+from keras.layers import Dense, Flatten, Input, LSTM, Reshape, Dropout, Add, Permute
 from keras.models import Sequential, Model
 from keras.regularizers import l2
 from keras.layers import Layer, TimeDistributed, Lambda
 from keras.optimizers import Adam, SGD, Adadelta
 import tensorflow as tf
 import numpy as np
+from tensorflow.compat.v1.keras.layers import CuDNNLSTM
+from tensorflow.compat.v1.keras import backend as K
 from sklearn.metrics import roc_auc_score
 from utils import *
 
-flags = tf.app.flags
+flags = tf.compat.v1.flags
 FLAGS = flags.FLAGS
 # flags.DEFINE_string('dataset', 'cora', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
 # flags.DEFINE_string('GPU', '-1', 'Model string.')  # 'gcn', 'gcn_cheby', 'dense'
 # flags.DEFINE_float('weight_decay', 0.01, 'Initial learning rate.')
+
+gpu_devices = tf.config.experimental.list_physical_devices('GPU')
+for device in gpu_devices:
+    tf.config.experimental.set_memory_growth(device, True)
 
 
 class e_lstm_d():
@@ -90,10 +95,10 @@ class e_lstm_d():
         return model
     
     def train(self, x, y):
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True  # 不全部占满显存, 按需分配
-        session = tf.Session(config=config)
-        K.set_session(session)
+        session = tf.compat.v1.Session(config=config)
+        tf.compat.v1.keras.backend.set_session(session)
         self.model.compile(optimizer=Adam(lr=FLAGS.learning_rate), loss=self.loss)
         history = self.model.fit(x, y, batch_size=FLAGS.batch_size, epochs=FLAGS.num_epochs, verbose=1)
         return history

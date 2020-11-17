@@ -5,7 +5,7 @@ import numpy as np
 from utils import *
 
 
-flags = tf.app.flags
+flags = tf.compat.v1.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('GPU', '0', 'train model on which GPU devide. -1 for CPU')
 flags.DEFINE_string('dataset', 'contact', 'the dataset used for training and testing')
